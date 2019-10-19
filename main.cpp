@@ -9,6 +9,8 @@
 // wxWidgets "Hello World" Program
 // For compilers that support precompilation, includes "wx/wx.h".
 
+#if 1
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
@@ -35,7 +37,6 @@ enum
     ID_Hello = 1
 };
 
-wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
    MyFrame *frame = new MyFrame();
@@ -78,3 +79,24 @@ void MyFrame::OnHello(wxCommandEvent& event)
 {
     wxLogMessage("Hello world from wxWidgets!");
 }
+#else
+#include <iostream>
+
+#endif
+
+
+//wxIMPLEMENT_APP(MyApp);
+
+int main(int argc, char **argv)                                       
+{                                                                     
+    wxDISABLE_DEBUG_SUPPORT();                                        
+                                                                      
+    return wxEntry(argc, argv);                                       
+}
+wxIMPLEMENT_APP_NO_MAIN(MyApp);
+
+//using namespace std;
+//int main()
+//{
+//   cout << "MAIN" << endl;
+//}
