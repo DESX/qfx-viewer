@@ -7,6 +7,10 @@
 
 #include "wx/listctrl.h"
 #include "qfx_viewer.hpp"
+#include <limits.h>
+#include "fix_console.hpp"
+
+#include "qfx_parser.hpp"
 
 class MyApp : public wxApp
 {
@@ -31,6 +35,10 @@ enum
 
 bool MyApp::OnInit()
 {
+   RedirectIOToConsole();
+
+   qfx_file inp_file = qfx_file::read("../qfx-data/transactions.QFX");
+
    MyFrame *frame = new MyFrame();
    frame->Show(true);
    return true;
@@ -72,7 +80,7 @@ MyFrame::MyFrame()
 
    m_listCtrl->AppendColumn("Animal");
    m_listCtrl->AppendColumn("Sound");
-   m_listCtrl->SetItemCount(10);
+   m_listCtrl->SetItemCount(LONG_MAX>>5);
 
    wxBoxSizer* const sizer = new wxBoxSizer(wxVERTICAL);
    sizer->Add(m_listCtrl, wxSizerFlags(2).Expand().Border());
