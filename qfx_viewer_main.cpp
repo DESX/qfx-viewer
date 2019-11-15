@@ -6,11 +6,12 @@
 #endif
 
 #include "wx/listctrl.h"
+#include "qfx_parser.hpp"
 #include "qfx_viewer.hpp"
 #include <limits.h>
 #include "fix_console.hpp"
 
-#include "qfx_parser.hpp"
+#include <vector>
 
 class MyApp : public wxApp
 {
@@ -37,8 +38,6 @@ bool MyApp::OnInit()
 {
    RedirectIOToConsole();
 
-   qfx_file inp_file = qfx_file::read("../qfx-data/transactions.QFX");
-
    MyFrame *frame = new MyFrame();
    frame->Show(true);
    return true;
@@ -62,9 +61,9 @@ MyFrame::MyFrame()
     CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
 
-   Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
-   Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
-   Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
+    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 
    long int flags = wxLC_REPORT | wxLC_VIRTUAL;
 
@@ -78,9 +77,26 @@ MyFrame::MyFrame()
       flags |
       wxBORDER_THEME | wxLC_EDIT_LABELS);
 
-   m_listCtrl->AppendColumn("Animal");
-   m_listCtrl->AppendColumn("Sound");
-   m_listCtrl->SetItemCount(LONG_MAX>>5);
+   m_listCtrl->AppendColumn("DATE");
+   m_listCtrl->AppendColumn("DESCRIPTION");
+   m_listCtrl->AppendColumn("AMOUNT");
+
+   //##################################################################
+
+   m_listCtrl->inp_file = qfx_file::read("../qfx-data/transactions.QFX",-5);
+   int curr_transaction = 0;
+
+   m_listCtrl->qfx_order.resize(m_listCtrl->inp_file.transactions.size());
+
+   for(auto & i : m_listCtrl->inp_file.transactions)
+   {
+      m_listCtrl->qfx_order[curr_transaction++] = i.first;
+   }
+
+   m_listCtrl->SetItemCount(m_listCtrl->inp_file.transactions.size());
+
+   //##################################################################
+
 
    wxBoxSizer* const sizer = new wxBoxSizer(wxVERTICAL);
    sizer->Add(m_listCtrl, wxSizerFlags(2).Expand().Border());
@@ -107,7 +123,39 @@ wxEND_EVENT_TABLE()
 
 wxString MyListCtrl::OnGetItemText(long item, long column) const
 {
-   return wxString::Format("Column %ld of item %ld", column, item);
+   if(qfx_order.size() < (size_t)item)  return wxString::Format("ERROR");
+
+   auto key = qfx_order[item];
+   auto found = inp_file.transactions.find(key);
+
+   if(found != inp_file.transactions.end())
+   {
+      auto val = found->second; 
+      switch(column)
+      {
+         case 0: 
+         {
+            char str[26];
+            ctime_s(str,sizeof str, &val.date_posted.first);
+            return wxString::Format("%s", str);
+         }
+         case 1: 
+         {
+            return wxString::Format("%s", val.memo.c_str());
+         }
+         case 2: 
+         {
+            int64_t r = val.amount%100;
+            return wxString::Format("%lld.%ld", val.amount/100,r>0?r:-r);
+         }
+         default:
+            return wxString::Format("Column %ld of item %ld", column, item);
+      }
+   }
+   else
+   {
+      return wxString::Format("ERROR");
+   }
 }
 
 void MyListCtrl::CheckItem(long item, bool check)

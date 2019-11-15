@@ -68,6 +68,9 @@ public:
 
         }
 
+    qfx_file inp_file;
+    std::vector<std::string> qfx_order;
+
     virtual void CheckItem(long item, bool check) wxOVERRIDE;
     virtual bool IsItemChecked(long item) const wxOVERRIDE;
 
