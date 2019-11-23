@@ -106,7 +106,6 @@ qfx_file qfx_file::read(string file_name, int utc_offset)
       while( getline (infile_s, line) )
       {
          line_cnt++;
-         bool in_transaction = false;
          auto tags = extract_tag(line);
          
          if(!tags.first.empty())   
@@ -227,4 +226,9 @@ qfx_file qfx_file::read(string file_name, int utc_offset)
    //}
 
    return fd;
+}
+
+static vector<std::string> create_ordering(const qfx_file&f, const vector<qfields> flds)
+{
+
 }

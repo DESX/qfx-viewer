@@ -126,6 +126,7 @@ wxString MyListCtrl::OnGetItemText(long item, long column) const
    if(qfx_order.size() < (size_t)item)  return wxString::Format("ERROR");
 
    auto key = qfx_order[item];
+
    auto found = inp_file.transactions.find(key);
 
    if(found != inp_file.transactions.end())
@@ -136,7 +137,7 @@ wxString MyListCtrl::OnGetItemText(long item, long column) const
          case 0: 
          {
             char str[26];
-            ctime_s(str,sizeof str, &val.date_posted.first);
+            ctime_s(str, sizeof(str),&val.date_posted.first);
             return wxString::Format("%s", str);
          }
          case 1: 
@@ -149,7 +150,7 @@ wxString MyListCtrl::OnGetItemText(long item, long column) const
             return wxString::Format("%lld.%ld", val.amount/100,r>0?r:-r);
          }
          default:
-            return wxString::Format("Column %ld of item %ld", column, item);
+            return wxString::Format("NO DATA %ld.%ld", column, item);
       }
    }
    else
